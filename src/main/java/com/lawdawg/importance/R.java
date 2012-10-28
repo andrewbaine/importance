@@ -44,17 +44,18 @@ public class R implements Reducer<Text, Text, NullWritable, Text> {
             if (node.has("partial")) {
                 sum += node.get("partial").asDouble();
             } else {
+                value.put("p", node.get("p"));
                 if (node.has("edges")) {
                     value.put("edges", node.get("edges"));
                 }
                 if (node.has("weights")) {
                     value.put("weights", node.get("weights"));
                 }
-                value.put("p", node.get("p"));
             }
         }
         value.put("sum", sum);
-        if (last) {
+        if (last) { // just take the pagerank 
+            value.remove("sum");
             value.remove("edges");
             value.remove("weights");
         }

@@ -38,6 +38,10 @@ public class M implements Mapper<LongWritable, Text, Text, Text> {
         
     }
 
+    private double pr(final double sum) {
+        return this.alpha + (1 - this.alpha) * (sum + this.lost);
+    }
+    
     @Override
     public void map(final LongWritable ignored, final Text json, final OutputCollector<Text, Text> collector,
             Reporter reporter) throws IOException {
@@ -50,8 +54,8 @@ public class M implements Mapper<LongWritable, Text, Text, Text> {
         key.set(id);
         
         double last = node.has("p") ? node.get("p").asDouble() : 0.0;
-        double sum = node.has("sum") ? node.get("sum").asDouble() : 1.0;        
-        double p = alpha + (1 - alpha) * (sum + this.lost);
+        double sum = node.has("sum") ? node.get("sum").asDouble() : 1.0;
+        double p = this.pr(sum);
         objectNode.put("p", p);
         
         if (node.has("edges") && node.get("edges").size() > 0) {
