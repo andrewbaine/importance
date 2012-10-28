@@ -9,6 +9,7 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -19,7 +20,6 @@ public class M implements Mapper<LongWritable, Text, Text, Text> {
     private final Text value = new Text();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private double alpha;
     private double lost;
     
@@ -45,51 +45,48 @@ public class M implements Mapper<LongWritable, Text, Text, Text> {
     @Override
     public void map(final LongWritable ignored, final Text json, final OutputCollector<Text, Text> collector,
             Reporter reporter) throws IOException {
-        JsonNode node = objectMapper.readTree(json.toString());
-        ObjectNode objectNode = objectMapper.createObjectNode();
 
-        String id = node.get("id").asText();
-        objectNode.put("id", id);
+        Node node = objectMapper.readValue(json.toString(), Node.class);
 
-        key.set(id);
+        boolean bootstrap = node.pagerank == null;
         
-        double last = node.has("p") ? node.get("p").asDouble() : 0.0;
-        double sum = node.has("sum") ? node.get("sum").asDouble() : 1.0;
+        double last = bootstrap ? 0.0 : node.pagerank;
+        double sum = bootstrap ? 1.0 : node.sumOfPartials;
         double p = this.pr(sum);
-        objectNode.put("p", p);
-        
-        if (node.has("edges") && node.get("edges").size() > 0) {
-            JsonNode edges = node.get("edges");
-            objectNode.put("edges", edges);
-            double denominator = edges.size();
 
-            JsonNode weights = null;
-            if (node.has("weights")) {
-                weights = node.get("weights");
-                objectNode.put("weights", weights);
-            }
-            
-            // distribute p among edges
-            for (int i = 0; i < edges.size(); i++) {
-                String destination = edges.get(i).asText();
-                double weight = (weights == null ? (1.0 / denominator) : weights.get(i).asDouble());
-                double partial = p * weight;
-                String js = String.format("{ \"partial\": %.5f }", partial);
-                this.collect(collector, destination, js);
+        if (node.edges != null) {
+            double size = node.edges.size();
+            for (int i = 0; i < size; i++) {
+                String destination = node.edges.get(i);
+                double weight = (node.weights == null ? (1.0 / size) : node.weights.get(i));
+                double partial = bootstrap ? 0.0 : p * weight;
+                collect(collector, destination, partial);
             }
         }
 
-        String value = objectMapper.writeValueAsString(objectNode);
-        this.collect(collector, id, value);
+        // re-emit this node
+        node.pagerank = p;
+        node.sumOfPartials = null;
+        collect(collector, node);
         
-        double pd = percentDifference(last, p);
-        Deltas.increment(reporter, pd);
+        // increment counters
+        if (!bootstrap) {
+            double pd = percentDifference(last, p);
+            Deltas.increment(reporter, pd);
+        }
     }
     
-    private void collect(OutputCollector out, String key, String value) throws IOException {
-        this.key.set(key);
-        this.value.set(value);
-        out.collect(this.key, this.value);
+    private Node partialNode = new Node();
+    private void collect(OutputCollector collector, String destination, double partial) throws IOException {
+        partialNode.sumOfPartials = partial;
+        this.key.set(destination);
+        this.value.set(objectMapper.writeValueAsString(partialNode));
+        collector.collect(this.key, this.value);
+    }
+    private void collect(OutputCollector collector, Node node) throws IOException {
+        key.set(node.id);
+        value.set(objectMapper.writeValueAsString(node));
+        collector.collect(this.key, this.value);
     }
     
     enum Deltas {

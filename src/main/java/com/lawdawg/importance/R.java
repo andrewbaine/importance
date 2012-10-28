@@ -28,39 +28,30 @@ public class R implements Reducer<Text, Text, NullWritable, Text> {
 
     @Override
     public void close() throws IOException {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void reduce(Text id, Iterator<Text> values,
             OutputCollector<NullWritable, Text> collector, Reporter reporter) throws IOException {
-        ObjectNode value = objectMapper.createObjectNode();
-        value.put("id", id.toString());
-        value.put("p", 0.0);
+        Node n = new Node();
+        n.id = id.toString();
+
         double sum = 0.0;
         while (values.hasNext()) {
-            ObjectNode node = (ObjectNode)objectMapper.readTree(values.next().toString());
-            if (node.has("partial")) {
-                sum += node.get("partial").asDouble();
+            Node node = objectMapper.readValue(values.next().toString(), Node.class);
+            if (node.sumOfPartials == null) {
+                n = node;
             } else {
-                value.put("p", node.get("p"));
-                if (node.has("edges")) {
-                    value.put("edges", node.get("edges"));
-                }
-                if (node.has("weights")) {
-                    value.put("weights", node.get("weights"));
-                }
+                sum += node.sumOfPartials;
             }
         }
-        value.put("sum", sum);
-        if (last) { // just take the pagerank 
-            value.remove("sum");
-            value.remove("edges");
-            value.remove("weights");
+        n.sumOfPartials = sum;
+        if (this.last){
+            n.edges = null;
+            n.weights = null;
+            n.sumOfPartials = null;
         }
-        this.value.set(objectMapper.writeValueAsString(value));
-
+        this.value.set(objectMapper.writeValueAsString(n));
         collector.collect(NULL, this.value);
         reporter.incrCounter(Counters.G, 1L);
         reporter.incrCounter(Counters.CONSERVED, (long)(sum * Main.MULTIPLIER));
