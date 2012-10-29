@@ -39,7 +39,7 @@ public class M implements Mapper<LongWritable, Text, Text, Text> {
     }
 
     private double pr(final double sum) {
-        return this.alpha + (1 - this.alpha) * (sum + this.lost);
+        return this.alpha + (1 - this.alpha) * (sum) * (1.0 / (1.0 - this.lost));
     }
     
     @Override
