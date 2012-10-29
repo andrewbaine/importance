@@ -1,0 +1,5 @@
+{ "id": "a", "edges": ["b", "c", "d", "e"] }
+{ "id": "b", "edges": ["c", "d", "e", "a"] }
+{ "id": "c", "edges": ["d", "e", "a", "b"] }
+{ "id": "d", "edges": ["e", "a", "b", "c"] }
+{ "id": "e", "edges": ["a", "b", "c", "d"] }
