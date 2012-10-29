@@ -35,7 +35,7 @@ public class R implements Reducer<Text, Text, NullWritable, Text> {
             OutputCollector<NullWritable, Text> collector, Reporter reporter) throws IOException {
         Node n = new Node();
         n.id = id.toString();
-
+        n.pagerank = 1.0;
         double sum = 0.0;
         while (values.hasNext()) {
             Node node = objectMapper.readValue(values.next().toString(), Node.class);

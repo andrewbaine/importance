@@ -116,7 +116,7 @@ public class Main {
         JobConf conf = new JobConf();
         
         Conf c = new Conf(alpha, 0.0, false);
-        for (int i = 0; i < iterations; i++) {
+        for (int i = 0; i < iterations - 1; i++) {
             Path tmpOutputPath = new Path(tmp, String.format("tmp%03d", i));
             c = run(inputPath, tmpOutputPath, c);
             inputPath = tmpOutputPath;

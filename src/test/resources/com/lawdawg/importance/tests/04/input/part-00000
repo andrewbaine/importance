@@ -1,0 +1,15 @@
+{ "id": "a", "edges": ["b"] }
+{ "id": "b", "edges": ["c"] }
+{ "id": "c", "edges": ["b"] }
+{ "id": "d", "edges": ["b", "a", "e"] }
+{ "id": "e", "edges": ["b"] }
+{ "id": "f", "edges": ["b", "c"] }
+{ "id": "g", "edges": ["b", "a"] }
+{ "id": "h", "edges": ["b"] }
+{ "id": "i", "edges": ["b"] }
+{ "id": "j", "edges": ["b", "w", "x", "y", "z"] }
+{ "id": "k", "edges": ["b"] }
+{ "id": "l", "edges": ["g"] }
+{ "id": "m", "edges": ["b"] }
+{ "id": "n", "edges": ["b", "t", "u", "v"] }
+{ "id": "o", "edges": ["p", "q", "r", "s"] }

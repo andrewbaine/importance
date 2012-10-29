@@ -1,0 +1,5 @@
+{ "id": "a", "edges": ["b"] }
+{ "id": "b", "edges": ["c"] }
+{ "id": "c", "edges": ["d"] }
+{ "id": "d", "edges": ["e"] }
+{ "id": "e", "edges": ["a"] }

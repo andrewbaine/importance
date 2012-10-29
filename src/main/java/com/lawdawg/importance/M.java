@@ -50,28 +50,27 @@ public class M implements Mapper<LongWritable, Text, Text, Text> {
 
         boolean bootstrap = node.pagerank == null;
         
-        double last = bootstrap ? 0.0 : node.pagerank;
-        double sum = bootstrap ? 1.0 : node.sumOfPartials;
-        double p = this.pr(sum);
+        double previousPagerank = bootstrap ? 0.0 : node.pagerank;
+        double nextPagerank = bootstrap ? 1.0 : this.pr(node.sumOfPartials);
 
         if (node.edges != null) {
             double size = node.edges.size();
             for (int i = 0; i < size; i++) {
                 String destination = node.edges.get(i);
                 double weight = (node.weights == null ? (1.0 / size) : node.weights.get(i));
-                double partial = bootstrap ? 0.0 : p * weight;
+                double partial = nextPagerank * weight;
                 collect(collector, destination, partial);
             }
         }
 
         // re-emit this node
-        node.pagerank = p;
+        node.pagerank = nextPagerank;
         node.sumOfPartials = null;
         collect(collector, node);
         
         // increment counters
         if (!bootstrap) {
-            double pd = percentDifference(last, p);
+            double pd = percentDifference(previousPagerank, nextPagerank);
             Deltas.increment(reporter, pd);
         }
     }
