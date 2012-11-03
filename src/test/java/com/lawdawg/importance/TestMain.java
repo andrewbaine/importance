@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Test
 public class TestMain {
 
     private File outputDirectory = null;
@@ -44,7 +45,7 @@ public class TestMain {
     
     @AfterClass
     public void cleanup() throws IOException {
-        // FileUtils.deleteDirectory(this.outputDirectory);
+        FileUtils.deleteDirectory(this.outputDirectory);
     }
 
     private static void assertMapsEqual(Map<String, Double> actual, Map<String, Double> expected) {
@@ -99,7 +100,7 @@ public class TestMain {
         return result;
     }
     
-    @Test(dataProvider="listJobs")
+    @Test(dataProvider="listJobs", groups={"integration"})
     public void testJob(String inputDirectory, String expectedFile, Double alpha, Integer iterations) throws IOException, ParseException {
         File dir = new File(this.outputDirectory, inputDirectory).getParentFile();
         dir.mkdirs();
@@ -110,7 +111,7 @@ public class TestMain {
             "--iterations", Integer.toString(iterations),
             "--alpha", Double.toString(alpha)
         };
-        Main.main(args);
+        RunImportanceJob.main(args);
         Map<String, Double> actual = parseDirectory(outputDirectory);
         Map<String, Double> expected = parseFile(new File(expectedFile));
 

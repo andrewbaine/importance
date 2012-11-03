@@ -54,7 +54,7 @@ public class R implements Reducer<Text, Text, NullWritable, Text> {
         this.value.set(objectMapper.writeValueAsString(n));
         collector.collect(NULL, this.value);
         reporter.incrCounter(Counters.G, 1L);
-        reporter.incrCounter(Counters.CONSERVED, (long)(sum * Main.MULTIPLIER));
+        reporter.incrCounter(Counters.CONSERVED, (long)(sum * RunImportanceJob.MULTIPLIER));
     }
 
     public enum Counters {

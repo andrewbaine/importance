@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import com.lawdawg.importance.R.Counters;
 
-public class Main {
+public class RunImportanceJob {
 
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(RunImportanceJob.class);
 
     public static final double MULTIPLIER = 1000000.0;
 
