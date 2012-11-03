@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Test
-public class TestMain {
+public class ImportanceIT {
 
     private File outputDirectory = null;
     private final ObjectMapper objectMapper = new ObjectMapper();
